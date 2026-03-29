@@ -3,40 +3,271 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CUK 밥</title>
+  <title>CUK밥</title>
   <style>
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --text: #1a1a1a;
+      --text-secondary: #666666;
+      --border: #e5e5e5;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      line-height: 1.6;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
       min-height: 100vh;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem;
+      z-index: 10;
+    }
+
+    .date-nav {
       display: flex;
-      justify-content: center;
       align-items: center;
-      background: #f5f5f5;
+      justify-content: space-between;
+      gap: 0.5rem;
     }
-    main {
+
+    .nav-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .nav-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .nav-btn:active {
+      background: var(--bg);
+    }
+
+    .current-date {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
       text-align: center;
-      padding: 2rem;
+      flex: 1;
     }
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      color: #333;
+
+    .day-name {
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-left: 0.25rem;
     }
-    p {
-      color: #666;
+
+    main {
+      padding: 1rem;
+      padding-bottom: 3rem;
+    }
+
+    .section {
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.75rem;
+    }
+
+    .menu-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .menu-items {
+      list-style: none;
+    }
+
+    .menu-items li {
+      padding: 0.25rem 0;
+      font-size: 0.9375rem;
+      color: var(--text);
+    }
+
+    .menu-items li:last-child {
+      margin-bottom: 0;
+    }
+
+    .no-menu {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      font-style: italic;
+    }
+
+    .loading, .error {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-secondary);
+    }
+
+    .error {
+      color: #dc2626;
+    }
+
+    .refresh-btn {
+      display: block;
+      margin: 1rem auto 0;
+      padding: 0.5rem 1rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+
+    .refresh-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        border: none;
+      }
     }
   </style>
 </head>
 <body>
-  <main>
-    <h1>CUK 밥</h1>
-    <p>Welcome to CUK밥 for Web</p>
-  </main>
+  <div class="container">
+    <header>
+      <div class="date-nav">
+        <button class="nav-btn" id="prevDay">←</button>
+        <div class="current-date" id="currentDate"></div>
+        <button class="nav-btn" id="nextDay">→</button>
+      </div>
+    </header>
+    <main id="menuContainer"></main>
+  </div>
+
+  <script>
+    const MENU_URL = 'https://raw.githubusercontent.com/CUKbab/CUK_Menu/main/latest.json';
+    const SECTION_NAMES = {
+      'Morning': '아침',
+      'Pranzo-Korean': '한식',
+      'Pranzo-Global-Noodle': ' noodle',
+      'Pranzo-Plus-Corner': ' plus',
+      'Pranzo-Dinner': ' dinner',
+      'Bona-Rice-Bowl': ' rice'
+    };
+
+    let menuData = null;
+    let currentDate = new Date();
+
+    function formatDate(date) {
+      const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                      'July', 'August', 'September', 'October', 'November', 'December'];
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      return `${months[date.getMonth()]} ${date.getDate()}, <span class="day-name">${days[date.getDay()]}</span>`;
+    }
+
+    function toDateString(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatMenuText(text) {
+      if (!text || text.trim() === '' || text.includes('No Menu')) {
+        return null;
+      }
+      return text.split('\n').filter(item => item.trim());
+    }
+
+    function renderMenu() {
+      const container = document.getElementById('menuContainer');
+      const dateStr = toDateString(currentDate);
+
+      document.getElementById('currentDate').innerHTML = formatDate(currentDate);
+
+      if (!menuData) {
+        container.innerHTML = '<div class="loading">Loading...</div>';
+        return;
+      }
+
+      const sections = Object.entries(menuData);
+      let html = '';
+
+      sections.forEach(([sectionKey, dateMenu]) => {
+        const menuText = dateMenu[dateStr];
+        const menuItems = formatMenuText(menuText);
+        const sectionName = SECTION_NAMES[sectionKey] || sectionKey;
+
+        html += `<section class="section">
+          <h2 class="section-title">${sectionName}</h2>
+          <div class="menu-card">
+            ${menuItems ? `<ul class="menu-items">${menuItems.map(item => `<li>${item}</li>`).join('')}</ul>` : '<p class="no-menu">메뉴 없음</p>`}
+          </div>
+        </section>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    async function fetchMenu() {
+      const container = document.getElementById('menuContainer');
+      container.innerHTML = '<div class="loading">Loading...</div>';
+
+      try {
+        const response = await fetch(MENU_URL);
+        if (!response.ok) throw new Error('Failed to fetch');
+        menuData = await response.json();
+        renderMenu();
+      } catch (error) {
+        container.innerHTML = `<div class="error">메뉴를 불러올 수 없습니다.<button class="refresh-btn" onclick="fetchMenu()">다시 시도</button></div>`;
+      }
+    }
+
+    function navigateDay(delta) {
+      currentDate.setDate(currentDate.getDate() + delta);
+      renderMenu();
+    }
+
+    document.getElementById('prevDay').addEventListener('click', () => navigateDay(-1));
+    document.getElementById('nextDay').addEventListener('click', () => navigateDay(1));
+
+    fetchMenu();
+  </script>
 </body>
 </html>
