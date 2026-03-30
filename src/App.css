@@ -537,6 +537,99 @@ body {
 .report-status.success { background: #e8f5e9; color: #2e7d32; }
 .report-status.error { background: #ffebee; color: #c62828; }
 
+.android-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+}
+
+.play-store-icon {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+  margin-bottom: 4px;
+}
+
+.android-info p {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-color);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.download-btn {
+  text-decoration: none;
+  background: #34a853; /* Google Play Green */
+}
+
+.download-btn:hover {
+  background: #2d8e47;
+}
+
+/* Clients Section */
+.clients-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+.client-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.client-item:hover {
+  transform: translateY(-2px);
+  background: white;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+}
+
+.client-icon {
+  width: 40px;
+  height: 40px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05));
+}
+
+.client-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.client-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.client-link {
+  font-size: 13px;
+  color: #34a853;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.client-status {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.client-item.coming-soon {
+  opacity: 0.7;
+  filter: grayscale(0.5);
+}
+
 .loading, .error {
   text-align: center;
   font-size: 18px;
