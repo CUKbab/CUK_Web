@@ -224,7 +224,6 @@ body {
   color: var(--primary-color);
   margin: 0 0 4px 12px;
 }
-
 .menu-card {
   background: var(--card-bg);
   border-radius: var(--card-radius);
@@ -232,20 +231,59 @@ body {
   padding: 24px;
   transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
   border: 1px solid rgba(0, 0, 0, 0.03);
+  position: relative;
+}
+
+.menu-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-right: 40px; /* Space for the absolute button */
+}
+
+.share-card-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: #f8f8f8;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  z-index: 5;
+}
+
+.share-card-btn:hover {
+  background: #eee;
+  color: var(--primary-color);
+}
+
+.share-card-btn.copied {
+  background: var(--primary-color);
+  color: white;
 }
 
 .menu-card:hover {
+...
+
   transform: translateY(-4px);
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
 }
 
 .menu-category-title {
-  margin: 0 0 12px 0;
+  margin: 0;
   font-size: 16px;
   font-weight: 700;
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin-right: auto;
 }
 
 .menu-items {
@@ -477,6 +515,11 @@ body {
   to { opacity: 1; }
 }
 
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
 .modal-content {
   width: 100%;
   max-width: 500px;
@@ -486,6 +529,19 @@ body {
 @keyframes modalIn {
   from { opacity: 0; transform: scale(0.9) translateY(20px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes modalOut {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to { opacity: 0; transform: scale(0.9) translateY(20px); }
+}
+
+.modal-overlay.closing {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+.modal-content.closing {
+  animation: modalOut 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 .form-group {
