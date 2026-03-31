@@ -27,13 +27,28 @@ The unofficial web version of the Catholic University of Korea (CUK) menu viewer
 
 ### Development
 
-```bash
-# Install dependencies
-npm install
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/CUK_Web.git
+    cd CUK_Web
+    ```
 
-# Start local development server
-npm run dev
-```
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+3.  **Set up environment variables:**
+    Create a `.env` file in the root directory and add your Firebase configuration:
+    ```bash
+    cp .env.example .env
+    ```
+    Then, edit `.env` with your actual Firebase project credentials.
+
+4.  **Start local development server:**
+    ```bash
+    npm run dev
+    ```
 
 ### Build
 
