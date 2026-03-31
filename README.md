@@ -11,8 +11,8 @@ The unofficial web version of the Catholic University of Korea (CUK) menu viewer
 - **Performance Caching**: Automatic weekly menu caching in `localStorage` for near-instant loading.
 - **Archived Menus**: Access previous weeks' menus directly from the GitHub menu archive.
 - **Multi-language Support**: Full support for Korean, English, Japanese, and Chinese (Simplified).
-- **Firebase Integration**: Secure Google Login for feature suggestions and bug reporting.
-- **Instant Reporting**: One-click menu error reporting (no login required).
+- **Firebase Integration**: Secure Google Login for feature suggestions and reporting.
+- **Controlled Reporting**: Menu error reporting and bug submission (requires login).
 
 ## Tech Stack
 

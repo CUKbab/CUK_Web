@@ -89,7 +89,7 @@ const Settings: React.FC<SettingsProps> = ({ language, setLanguage, user }) => {
   };
 
   const handleQuickMenuReport = async () => {
-    if (isSubmitting) return;
+    if (isSubmitting || !user) return;
     setIsSubmitting(true);
     try {
       await sendReport('Menu Error', 'Menu Error', ['menu-error', 'reported-via-web']);
@@ -175,22 +175,27 @@ const Settings: React.FC<SettingsProps> = ({ language, setLanguage, user }) => {
       <section className="settings-section animate-slide-up stagger-3">
         <h2 className="settings-section-title">{t('feedback_support')}</h2>
         <div className="settings-card feedback-grid">
-          <button className="feedback-btn" onClick={handleQuickMenuReport} disabled={isSubmitting}>
-            {isSubmitting ? '...' : t('report_menu_error')}
+          <button 
+            className={`feedback-btn ${!user ? 'locked' : ''}`} 
+            onClick={() => user ? handleQuickMenuReport() : alert(t('feature_requires_login'))} 
+            disabled={isSubmitting}
+            title={!user ? t('feature_requires_login') : ''}
+          >
+            {isSubmitting ? '...' : t('report_menu_error')} {!user && '🔒'}
           </button>
           
           <button 
             className={`feedback-btn ${!user ? 'locked' : ''}`} 
-            onClick={() => user && setIsReporting('feature')}
-            title={!user ? t('login_to_access') : ''}
+            onClick={() => user ? setIsReporting('feature') : alert(t('feature_requires_login'))}
+            title={!user ? t('feature_requires_login') : ''}
           >
             {t('suggest_feature')} {!user && '🔒'}
           </button>
           
           <button 
             className={`feedback-btn ${!user ? 'locked' : ''}`} 
-            onClick={() => user && setIsReporting('bug')}
-            title={!user ? t('login_to_access') : ''}
+            onClick={() => user ? setIsReporting('bug') : alert(t('feature_requires_login'))}
+            title={!user ? t('feature_requires_login') : ''}
           >
             {t('report_bug')} {!user && '🔒'}
           </button>
