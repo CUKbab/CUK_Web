@@ -13,5 +13,7 @@ export const CATEGORY_MAP: Record<string, string> = {
   'Pranzo-Global-Noodle': 'category_global_noodle',
   'Pranzo-Plus-Corner': 'category_plus_corner',
   'Pranzo-Dinner': 'category_dinner',
-  'Bona-Rice-Bowl': 'category_rice_bowl'
+  'Bona-Rice-Bowl': 'category_rice_bowl',
+  'Lunch': 'category_lunch',
+  'Dinner': 'category_dinner'
 };

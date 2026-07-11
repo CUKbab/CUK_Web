@@ -106,8 +106,8 @@ function App() {
     if (tab === 'buon-pranzo') {
       return [
         { title: t('breakfast'), keys: ['Morning'] },
-        { title: t('lunch'), keys: ['Pranzo-Korean', 'Pranzo-Global-Noodle', 'Pranzo-Plus-Corner'] },
-        { title: t('dinner'), keys: ['Pranzo-Dinner'] }
+        { title: t('lunch'), keys: ['Pranzo-Korean', 'Pranzo-Global-Noodle', 'Pranzo-Plus-Corner', 'Lunch'] },
+        { title: t('dinner'), keys: ['Pranzo-Dinner', 'Dinner'] }
       ];
     }
     return [{ title: t('bowl_noodle'), keys: ['Bona-Rice-Bowl'] }];

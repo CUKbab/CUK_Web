@@ -46,7 +46,8 @@ export const translations = {
     'category_global_noodle': 'Global Noodle',
     'category_plus_corner': 'Plus Corner',
     'category_dinner': 'Dinner',
-    'category_rice_bowl': 'Rice Bowl'
+    'category_rice_bowl': 'Rice Bowl',
+    'category_lunch': 'Lunch'
   },
   ko: {
     'screen_buon_pranzo': 'Buon Pranzo',
@@ -93,7 +94,8 @@ export const translations = {
     'category_global_noodle': 'Global Noodle',
     'category_plus_corner': '플러스 코너',
     'category_dinner': '석식',
-    'category_rice_bowl': '덮밥'
+    'category_rice_bowl': '덮밥',
+    'category_lunch': '중식'
   },
   ja: {
     'screen_buon_pranzo': 'Buon Pranzo',
@@ -140,7 +142,8 @@ export const translations = {
     'category_global_noodle': 'Global Noodle',
     'category_plus_corner': 'プラスコーナー',
     'category_dinner': '夕食',
-    'category_rice_bowl': '丼物'
+    'category_rice_bowl': '丼物',
+    'category_lunch': '昼食'
   },
   zh: {
     'screen_buon_pranzo': 'Buon Pranzo',
@@ -187,6 +190,7 @@ export const translations = {
     'category_global_noodle': 'Global Noodle',
     'category_plus_corner': 'Plus角落',
     'category_dinner': '晚餐',
-    'category_rice_bowl': '盖饭'
+    'category_rice_bowl': '盖饭',
+    'category_lunch': '午餐'
   }
 };
