@@ -636,15 +636,50 @@ body {
   gap: 12px;
   padding: 16px;
   border-radius: 20px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 2px solid rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
   background: rgba(255, 255, 255, 0.5);
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 .client-item:hover {
   transform: translateY(-2px);
   background: white;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+}
+
+.client-item:hover .client-link {
+  text-decoration: underline;
+}
+
+.client-item.recommended {
+  border-color: #34a853;
+  background: rgba(52, 168, 83, 0.04);
+}
+
+.client-item.recommended:hover {
+  background: rgba(52, 168, 83, 0.08);
+  box-shadow: 0 8px 20px rgba(52, 168, 83, 0.12);
+}
+
+.client-recommended-badge {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #34a853;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(52, 168, 83, 0.3);
+  z-index: 1;
 }
 
 .client-icon {
@@ -670,6 +705,162 @@ body {
   color: #34a853;
   text-decoration: none;
   font-weight: 600;
+}
+
+button.client-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  color: #34a853;
+  font-weight: 600;
+  display: inline-block;
+  line-height: inherit;
+}
+
+.client-link:hover,
+button.client-link:hover {
+  text-decoration: underline;
+}
+
+/* macOS Architecture Modal */
+.mac-modal-content {
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: left;
+}
+
+.mac-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mac-modal-icon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+}
+
+.mac-modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.mac-modal-desc {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.mac-arch-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mac-arch-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.mac-arch-card:hover {
+  border-color: #34a853;
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.mac-arch-card.recommended {
+  border-color: #34a853;
+  background: rgba(52, 168, 83, 0.04);
+}
+
+.mac-arch-card.recommended:hover {
+  background: rgba(52, 168, 83, 0.08);
+}
+
+.mac-arch-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mac-arch-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mac-arch-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.mac-arch-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-secondary);
+}
+
+.mac-arch-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #34a853;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+}
+
+.mac-arch-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.mac-arch-download-btn {
+  font-size: 13px;
+  font-weight: 600;
+  color: #34a853;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: rgba(52, 168, 83, 0.1);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.mac-arch-card:hover .mac-arch-download-btn {
+  background: #34a853;
+  color: #ffffff;
+}
+
+.mac-arch-card.recommended .mac-arch-download-btn {
+  background: #34a853;
+  color: #ffffff;
+}
+
+.mac-arch-card.recommended:hover .mac-arch-download-btn {
+  background: #2d8e47;
 }
 
 .client-status {

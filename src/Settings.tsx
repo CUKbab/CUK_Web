@@ -1,10 +1,87 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { auth, googleProvider, db } from './firebase';
 import { signInWithPopup, signOut, deleteUser, type User } from 'firebase/auth';
 import { collection, addDoc } from 'firebase/firestore';
 import { type Language, translations } from './i18n';
 import { AndroidIcon, WindowsIcon, MacOSIcon, LinuxIcon } from './Icons';
 import { REPORTER_URL } from './constants';
+
+interface NavigatorUAData {
+  userAgentData?: {
+    platform?: string;
+    getHighEntropyValues: (hints: string[]) => Promise<{ architecture?: string }>;
+  };
+}
+
+type OS = 'android' | 'windows' | 'macos' | 'linux';
+
+const detectOS = (): OS | null => {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+    return null;
+  }
+
+  const nav = navigator as Navigator & NavigatorUAData;
+  const platformHint = nav.userAgentData?.platform?.toLowerCase() || '';
+  if (platformHint === 'windows') return 'windows';
+  if (platformHint === 'macos') return 'macos';
+  if (platformHint === 'android') return 'android';
+  if (platformHint === 'linux') return 'linux';
+
+  const ua = (navigator.userAgent || '').toLowerCase();
+  const platform = (navigator.platform || '').toLowerCase();
+
+  // Android check (must precede Linux because Android UA contains 'linux')
+  if (ua.includes('android')) return 'android';
+
+  // Windows check
+  if (ua.includes('windows') || ua.includes('win32') || platform.includes('win')) return 'windows';
+
+  // macOS check (excluding iPhone / iPad)
+  if ((ua.includes('macintosh') || ua.includes('mac os x') || platform.includes('mac')) && !ua.includes('iphone') && !ua.includes('ipad')) {
+    return 'macos';
+  }
+
+  // Linux check
+  if (ua.includes('linux') || platform.includes('linux')) return 'linux';
+
+  return null;
+};
+
+const detectSystemArch = async (): Promise<'arm64' | 'x64' | null> => {
+  try {
+    const nav = typeof navigator !== 'undefined' ? (navigator as Navigator & NavigatorUAData) : null;
+    if (nav?.userAgentData?.getHighEntropyValues) {
+      const hints = await nav.userAgentData.getHighEntropyValues(['architecture']);
+      const arch = String(hints?.architecture || '').toLowerCase();
+      if (arch.includes('arm') || arch.includes('aarch')) return 'arm64';
+      if (arch.includes('x86') || arch.includes('amd64') || arch.includes('x64')) return 'x64';
+    }
+
+    const ua = navigator.userAgent || '';
+    if (/arm64|aarch64/i.test(ua)) return 'arm64';
+    if (/x86_64|x86-64|Win64|x64|WOW64|amd64/i.test(ua)) return 'x64';
+
+    const platform = (navigator.platform || '').toLowerCase();
+    if (platform.includes('aarch64') || platform.includes('arm')) return 'arm64';
+    if (platform.includes('x86_64') || platform.includes('x86-64') || platform.includes('win64') || platform.includes('x64')) return 'x64';
+
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (gl) {
+      const ext = (gl as WebGLRenderingContext).getExtension('WEBGL_debug_renderer_info');
+      if (ext) {
+        const renderer = (gl as WebGLRenderingContext).getParameter(ext.UNMASKED_RENDERER_WEBGL);
+        if (typeof renderer === 'string') {
+          if (/Apple M|Apple GPU|Adreno|Mali|Immortalis/i.test(renderer)) return 'arm64';
+          if (/Intel|AMD|Radeon|Nvidia|GeForce/i.test(renderer)) return 'x64';
+        }
+      }
+    }
+  } catch {
+    // Fail silently and return null
+  }
+  return null;
+};
 
 interface SettingsProps {
   language: Language;
@@ -29,6 +106,52 @@ const Settings: React.FC<SettingsProps> = ({ language, setLanguage, user }) => {
   const [reportDesc, setReportDesc] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reportStatus, setReportStatus] = useState<{ success: boolean; message: string } | null>(null);
+
+  const [showMacModal, setShowMacModal] = useState(false);
+  const [isMacClosing, setIsMacClosing] = useState(false);
+  const [detectedArch, setDetectedArch] = useState<'arm64' | 'x64' | null>(null);
+
+  const [detectedOS] = useState<OS | null>(() => detectOS());
+  const defaultOrder: OS[] = ['android', 'windows', 'macos', 'linux'];
+  const clientOrder = detectedOS
+    ? [detectedOS, ...defaultOrder.filter(os => os !== detectedOS)]
+    : defaultOrder;
+
+  useEffect(() => {
+    let isMounted = true;
+    detectSystemArch().then((arch) => {
+      if (isMounted && arch) {
+        setDetectedArch(arch);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!showMacModal) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeMacModal();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showMacModal]);
+
+  const openMacModal = () => {
+    setIsMacClosing(false);
+    setShowMacModal(true);
+  };
+
+  const closeMacModal = () => {
+    setIsMacClosing(true);
+    setTimeout(() => {
+      setShowMacModal(false);
+      setIsMacClosing(false);
+    }, 300);
+  };
 
   const closeModal = () => {
     setIsClosing(true);
@@ -206,39 +329,93 @@ const Settings: React.FC<SettingsProps> = ({ language, setLanguage, user }) => {
       <section className="settings-section animate-slide-up stagger-4">
         <h2 className="settings-section-title">{t('clients_title')}</h2>
         <div className="settings-card clients-grid">
-          <div className="client-item android">
-            <AndroidIcon className="client-icon" />
-            <div className="client-info">
-              <span className="client-name">Android</span>
-              <a href="https://play.google.com/store/apps/details?id=com.cukbab" target="_blank" rel="noopener noreferrer" className="client-link">
-                {t('download_now')}
-              </a>
-            </div>
-          </div>
-
-          <div className="client-item coming-soon">
-            <WindowsIcon className="client-icon" />
-            <div className="client-info">
-              <span className="client-name">Windows</span>
-              <span className="client-status">{t('coming_soon')}</span>
-            </div>
-          </div>
-
-          <div className="client-item coming-soon">
-            <MacOSIcon className="client-icon" />
-            <div className="client-info">
-              <span className="client-name">macOS</span>
-              <span className="client-status">{t('coming_soon')}</span>
-            </div>
-          </div>
-
-          <div className="client-item coming-soon">
-            <LinuxIcon className="client-icon" />
-            <div className="client-info">
-              <span className="client-name">Linux</span>
-              <span className="client-status">{t('coming_soon')}</span>
-            </div>
-          </div>
+          {clientOrder.map(os => {
+            const isRecommended = detectedOS === os;
+            switch (os) {
+              case 'android':
+                return (
+                  <a 
+                    key="android" 
+                    href="https://play.google.com/store/apps/details?id=com.cukbab" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className={`client-item android ${isRecommended ? 'recommended' : ''}`}
+                  >
+                    {isRecommended && (
+                      <span className="client-recommended-badge">{t('recommended')}</span>
+                    )}
+                    <AndroidIcon className="client-icon" />
+                    <div className="client-info">
+                      <span className="client-name">Android</span>
+                      <span className="client-link">{t('download_now')}</span>
+                    </div>
+                  </a>
+                );
+              case 'windows':
+                return (
+                  <a 
+                    key="windows" 
+                    href="https://github.com/CUKbab/CUK_PC/releases/latest/download/CUK.-windows-x64.zip" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className={`client-item Windows ${isRecommended ? 'recommended' : ''}`}
+                  >
+                    {isRecommended && (
+                      <span className="client-recommended-badge">{t('recommended')}</span>
+                    )}
+                    <WindowsIcon className="client-icon" />
+                    <div className="client-info">
+                      <span className="client-name">Windows</span>
+                      <span className="client-link">{t('download_now')}</span>
+                    </div>
+                  </a>
+                );
+              case 'macos':
+                return (
+                  <div 
+                    key="macos"
+                    className={`client-item macOS ${isRecommended ? 'recommended' : ''}`}
+                    onClick={openMacModal} 
+                    role="button" 
+                    tabIndex={0} 
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openMacModal();
+                      }
+                    }}
+                  >
+                    {isRecommended && (
+                      <span className="client-recommended-badge">{t('recommended')}</span>
+                    )}
+                    <MacOSIcon className="client-icon" />
+                    <div className="client-info">
+                      <span className="client-name">macOS</span>
+                      <span className="client-link">{t('download_now')}</span>
+                    </div>
+                  </div>
+                );
+              case 'linux':
+                return (
+                  <a 
+                    key="linux" 
+                    href="https://github.com/CUKbab/CUK_PC/releases/latest/download/CUK.-linux-x64.tar.gz" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className={`client-item Linux ${isRecommended ? 'recommended' : ''}`}
+                  >
+                    {isRecommended && (
+                      <span className="client-recommended-badge">{t('recommended')}</span>
+                    )}
+                    <LinuxIcon className="client-icon" />
+                    <div className="client-info">
+                      <span className="client-name">Linux</span>
+                      <span className="client-link">{t('download_now')}</span>
+                    </div>
+                  </a>
+                );
+            }
+          })}
         </div>
       </section>
 
@@ -246,7 +423,7 @@ const Settings: React.FC<SettingsProps> = ({ language, setLanguage, user }) => {
       {isReporting && (
         <div className={`modal-overlay ${isClosing ? 'closing' : ''}`} onClick={(e) => e.target === e.currentTarget && closeModal()}>
           <div className={`modal-content settings-card ${isClosing ? 'closing' : ''}`}>
-            <h3>{t(`suggest_feature` as any)} / {t(`report_bug` as any)}</h3>
+            <h3>{t('suggest_feature')} / {t('report_bug')}</h3>
             <form onSubmit={submitCustomReport}>
               <div className="form-group">
                 <label>{t('issue_title')}</label>
@@ -282,6 +459,74 @@ const Settings: React.FC<SettingsProps> = ({ language, setLanguage, user }) => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* macOS Architecture Selection Modal */}
+      {showMacModal && (
+        <div 
+          className={`modal-overlay ${isMacClosing ? 'closing' : ''}`} 
+          onClick={(e) => e.target === e.currentTarget && closeMacModal()}
+        >
+          <div className={`modal-content settings-card mac-modal-content ${isMacClosing ? 'closing' : ''}`}>
+            <div className="mac-modal-header">
+              <MacOSIcon className="mac-modal-icon" />
+              <div>
+                <h3 className="mac-modal-title">{t('macos_download_title')}</h3>
+                <p className="mac-modal-desc">{t('macos_download_desc')}</p>
+              </div>
+            </div>
+
+            <div className="mac-arch-list">
+              {/* Apple Silicon (arm64) */}
+              <a
+                href="https://github.com/CUKbab/CUK_PC/releases/latest/download/CUK.-macos-arm64.dmg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`mac-arch-card ${detectedArch === 'arm64' ? 'recommended' : ''}`}
+                onClick={closeMacModal}
+              >
+                <div className="mac-arch-info">
+                  <div className="mac-arch-title-row">
+                    <span className="mac-arch-name">{t('mac_arm64_title')}</span>
+                    <span className="mac-arch-tag">arm64</span>
+                    {detectedArch === 'arm64' && (
+                      <span className="mac-arch-badge">{t('recommended')}</span>
+                    )}
+                  </div>
+                  <span className="mac-arch-sub">{t('mac_arm64_desc')}</span>
+                </div>
+                <span className="mac-arch-download-btn">{t('download_now')}</span>
+              </a>
+
+              {/* Intel (x64) */}
+              <a
+                href="https://github.com/CUKbab/CUK_PC/releases/latest/download/CUK.-macos-x64.dmg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`mac-arch-card ${detectedArch === 'x64' ? 'recommended' : ''}`}
+                onClick={closeMacModal}
+              >
+                <div className="mac-arch-info">
+                  <div className="mac-arch-title-row">
+                    <span className="mac-arch-name">{t('mac_x64_title')}</span>
+                    <span className="mac-arch-tag">x64</span>
+                    {detectedArch === 'x64' && (
+                      <span className="mac-arch-badge">{t('recommended')}</span>
+                    )}
+                  </div>
+                  <span className="mac-arch-sub">{t('mac_x64_desc')}</span>
+                </div>
+                <span className="mac-arch-download-btn">{t('download_now')}</span>
+              </a>
+            </div>
+
+            <div className="modal-actions">
+              <button type="button" className="settings-btn cancel-btn" onClick={closeMacModal}>
+                {t('close')}
+              </button>
+            </div>
           </div>
         </div>
       )}
