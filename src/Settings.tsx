@@ -355,7 +355,7 @@ const Settings: React.FC<SettingsProps> = ({ language, setLanguage, user }) => {
                 return (
                   <a 
                     key="windows" 
-                    href="https://github.com/CUKbab/CUK_PC/releases/latest/download/CUK.-windows-x64.zip" 
+                    href="https://github.com/CUKbab/CUK_PC/releases/latest/download/CUKbab-windows-x64.zip" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className={`client-item Windows ${isRecommended ? 'recommended' : ''}`}
@@ -399,7 +399,7 @@ const Settings: React.FC<SettingsProps> = ({ language, setLanguage, user }) => {
                 return (
                   <a 
                     key="linux" 
-                    href="https://github.com/CUKbab/CUK_PC/releases/latest/download/CUK.-linux-x64.tar.gz" 
+                    href="https://github.com/CUKbab/CUK_PC/releases/latest/download/CUKbab-linux-x64.tar.gz" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className={`client-item Linux ${isRecommended ? 'recommended' : ''}`}
@@ -481,7 +481,7 @@ const Settings: React.FC<SettingsProps> = ({ language, setLanguage, user }) => {
             <div className="mac-arch-list">
               {/* Apple Silicon (arm64) */}
               <a
-                href="https://github.com/CUKbab/CUK_PC/releases/latest/download/CUK.-macos-arm64.dmg"
+                href="https://github.com/CUKbab/CUK_PC/releases/latest/download/CUKbab-macos-arm64.dmg"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`mac-arch-card ${detectedArch === 'arm64' ? 'recommended' : ''}`}
@@ -502,7 +502,7 @@ const Settings: React.FC<SettingsProps> = ({ language, setLanguage, user }) => {
 
               {/* Intel (x64) */}
               <a
-                href="https://github.com/CUKbab/CUK_PC/releases/latest/download/CUK.-macos-x64.dmg"
+                href="https://github.com/CUKbab/CUK_PC/releases/latest/download/CUKbab-macos-x64.dmg"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`mac-arch-card ${detectedArch === 'x64' ? 'recommended' : ''}`}
