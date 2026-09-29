@@ -181,8 +181,14 @@ function App() {
   };
 
   return (
-    <div className="app-container">
+    <>
       <nav className="navbar">
+        <div className="nav-left">
+          <a href="https://cukbab.github.io/" className="nav-brand" title="CUK밥">
+            <img src={`${import.meta.env.BASE_URL}favicon.png`} alt="CUK밥 로고" className="nav-logo" />
+            <span className="nav-brand-title">CUK밥</span>
+          </a>
+        </div>
         <div className="nav-tabs">
           {(['buon-pranzo', 'cafe-bona', 'settings'] as Tab[]).map(tab => (
             <button key={tab} className={`nav-tab ${activeTab === tab ? 'active' : ''}`} onClick={() => handleTabChange(tab)}>
@@ -190,24 +196,27 @@ function App() {
             </button>
           ))}
         </div>
+        <div className="nav-right" />
       </nav>
 
-      {activeTab !== 'settings' ? (
-        <>
-          <div className="header-controls">
-            <div className="date-selector">
-              <button className="date-btn" onClick={() => changeDate(-1)}>◀</button>
-              <div className="current-date" onClick={goToToday} style={{ cursor: 'pointer' }}>{displayDate}</div>
-              <button className="date-btn" onClick={() => changeDate(1)}>▶</button>
+      <div className="app-container">
+        {activeTab !== 'settings' ? (
+          <>
+            <div className="header-controls">
+              <div className="date-selector">
+                <button className="date-btn" onClick={() => changeDate(-1)}>◀</button>
+                <div className="current-date" onClick={goToToday} style={{ cursor: 'pointer' }}>{displayDate}</div>
+                <button className="date-btn" onClick={() => changeDate(1)}>▶</button>
+              </div>
+              <button className="refresh-btn" onClick={onRefresh} title={t('refresh')}>↻</button>
             </div>
-            <button className="refresh-btn" onClick={onRefresh} title={t('refresh')}>↻</button>
-          </div>
-          <main>{renderMenuContent()}</main>
-        </>
-      ) : (
-        <Settings language={language} setLanguage={setLanguage} user={user} />
-      )}
-    </div>
+            <main>{renderMenuContent()}</main>
+          </>
+        ) : (
+          <Settings language={language} setLanguage={setLanguage} user={user} />
+        )}
+      </div>
+    </>
   );
 }
 
